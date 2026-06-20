@@ -49,15 +49,8 @@ class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.String)
 
-    customer_id = db.Column(
-        db.Integer,
-        db.ForeignKey('customers.id')
-    )
-
-    item_id = db.Column(
-        db.Integer,
-        db.ForeignKey('items.id')
-    )
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
 
     customer = db.relationship(
         'Customer',
@@ -71,45 +64,24 @@ class Review(db.Model):
 
     def __repr__(self):
         return f'<Review {self.id}, {self.comment}>'
-    class CustomerSchema(Schema):
+
+
+class CustomerSchema(Schema):
     id = fields.Integer()
     name = fields.String()
-
-    reviews = fields.Nested(
-        'ReviewSchema',
-        many=True,
-        exclude=('customer', 'item')
-    )
-
-    items = fields.Nested(
-        'ItemSchema',
-        many=True,
-        exclude=('reviews',)
-    )
+    reviews = fields.Nested('ReviewSchema', many=True, exclude=('customer', 'item'))
+    items = fields.Nested('ItemSchema', many=True, exclude=('reviews',))
 
 
 class ItemSchema(Schema):
     id = fields.Integer()
     name = fields.String()
     price = fields.Float()
-
-    reviews = fields.Nested(
-        'ReviewSchema',
-        many=True,
-        exclude=('customer', 'item')
-    )
+    reviews = fields.Nested('ReviewSchema', many=True, exclude=('customer', 'item'))
 
 
 class ReviewSchema(Schema):
     id = fields.Integer()
     comment = fields.String()
-
-    customer = fields.Nested(
-        'CustomerSchema',
-        exclude=('reviews', 'items')
-    )
-
-    item = fields.Nested(
-        'ItemSchema',
-        exclude=('reviews',)
-    )
+    customer = fields.Nested('CustomerSchema', exclude=('reviews', 'items'))
+    item = fields.Nested('ItemSchema', exclude=('reviews',))
